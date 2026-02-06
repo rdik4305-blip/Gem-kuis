@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Belajar - Hardcore Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hardcore-mode {
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .top-global-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .top-global-list::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        .option-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header Stats -->
+    <nav class="bg-slate-900/80 sticky top-0 z-50 border-b border-slate-800 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-2" onclick="goHome()" style="cursor:pointer">
+                <div class="bg-indigo-600 p-2 rounded-lg">
+                    <i class="fas fa-gem text-white"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight">GEM <span class="text-indigo-400">ULTRA</span></span>
+            </div>
+            
+            <div class="flex items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fas fa-heart text-red-500"></i>
+                    <span id="like-count" class="font-bold">5</span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fas fa-star text-yellow-400"></i>
+                    <span id="score-val" class="font-bold">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Welcome Screen -->
+        <section id="welcome-screen" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <h1 class="text-4xl font-extrabold mb-2">Mode Hardcore Aktif!</h1>
+                        <p class="text-indigo-100 text-lg mb-6 leading-relaxed">Satu kesalahan, nyawa melayang atau skor reset. Apakah kamu cukup pintar untuk menjadi nomor 1?</p>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="startInfiniteQuiz()" class="bg-white text-indigo-600 px-8 py-4 rounded-xl font-bold hover:bg-indigo-50 transition-all shadow-lg">
+                                Mulai Main
+                            </button>
+                            <button onclick="openShop()" class="bg-indigo-500/30 border border-white/20 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-500/50 transition-all">
+                                <i class="fas fa-shopping-cart mr-2"></i> Toko Like
+                            </button>
+                        </div>
+                    </div>
+                    <i class="fas fa-bolt text-9xl absolute -right-4 -bottom-4 text-white/10 rotate-12"></i>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h4 class="text-slate-400 text-xs font-bold uppercase mb-2">Total Pelajaran</h4>
+                        <p class="text-xl font-bold">50+ Materi</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl border-red-500/30">
+                        <h4 class="text-slate-400 text-xs font-bold uppercase mb-2">Aturan Main</h4>
+                        <p class="text-lg font-bold text-red-400 leading-tight">Salah = Reset 50% Skor</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-2xl">
+                        <h4 class="text-slate-400 text-xs font-bold uppercase mb-2">Level Global</h4>
+                        <p class="text-xl font-bold">Unending</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Global Sidebar -->
+            <div class="glass-card rounded-3xl p-6 border-indigo-500/20">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold flex items-center gap-2">
+                        <i class="fas fa-crown text-yellow-500"></i> Papan Peringkat
+                    </h3>
+                </div>
+                <div id="top-global-list" class="space-y-3 max-h-[500px] overflow-y-auto top-global-list pr-2">
+                    <!-- Loading state -->
+                    <p class="text-center text-slate-500 py-4">Memuat data...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz Screen -->
+        <section id="quiz-screen" class="hidden max-w-2xl mx-auto py-10">
+            <div class="text-center mb-8">
+                <div id="streak-counter" class="inline-block px-4 py-1.5 rounded-full bg-orange-500/20 text-orange-400 font-bold text-sm border border-orange-500/30">
+                    STREAK: 0
+                </div>
+                <h2 id="question-text" class="text-2xl sm:text-3xl font-bold mt-6 leading-tight min-h-[100px]">...</h2>
+            </div>
+
+            <div id="options-grid" class="grid grid-cols-1 gap-4 mb-8">
+                <!-- Options injected by JS -->
+            </div>
+
+            <div class="text-center p-4 bg-red-500/10 rounded-xl border border-red-500/20">
+                <p class="text-red-400 text-xs font-medium">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> 
+                    Satu kesalahan akan menghapus setengah poin globalmu!
+                </p>
+            </div>
+        </section>
+
+        <!-- Shop Modal -->
+        <div id="shop-modal" class="fixed inset-0 bg-slate-950/80 z-[110] hidden items-center justify-center p-4 backdrop-blur-md">
+            <div class="bg-slate-900 border border-indigo-500/30 p-8 rounded-3xl max-w-lg w-full space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold flex items-center gap-3">
+                        <i class="fas fa-shopping-bag text-indigo-500"></i> Toko Poin
+                    </h2>
+                    <button onclick="closeShop()" class="text-slate-500 hover:text-white"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <p class="text-slate-400 text-sm">Gunakan <span class="text-yellow-400 font-bold">Poin Global</span> kamu untuk membeli nyawa/like agar tidak perlu mengulang dari nol.</p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div onclick="processPurchase(1, 100)" class="p-6 rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-indigo-500 cursor-pointer transition-all group">
+                        <div class="text-2xl mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-heart text-red-500"></i></div>
+                        <h4 class="font-bold">1 Nyawa</h4>
+                        <p class="text-yellow-400 text-sm font-bold">100 Poin</p>
+                    </div>
+                    <div onclick="processPurchase(5, 450)" class="p-6 rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-indigo-500 cursor-pointer transition-all group relative">
+                        <span class="absolute top-2 right-2 bg-green-500 text-[10px] px-2 py-0.5 rounded-full text-white font-bold">HEMAT</span>
+                        <div class="text-2xl mb-2 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-heart text-red-500"></i>
+                            <i class="fas fa-heart text-red-500"></i>
+                        </div>
+                        <h4 class="font-bold">5 Nyawa</h4>
+                        <p class="text-yellow-400 text-sm font-bold">450 Poin</p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-600/10 p-4 rounded-xl border border-indigo-500/20 flex justify-between items-center">
+                    <span class="text-sm font-medium">Saldo Poin Kamu:</span>
+                    <span id="shop-balance" class="font-bold text-yellow-400">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Death Modal -->
+        <div id="death-modal" class="fixed inset-0 bg-slate-950/95 z-[100] hidden items-center justify-center p-4 backdrop-blur-md">
+            <div class="bg-slate-900 border border-red-500/50 p-8 rounded-3xl max-w-md w-full text-center space-y-6 hardcore-mode">
+                <div class="w-20 h-20 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto">
+                    <i class="fas fa-skull-crossbones text-4xl"></i>
+                </div>
+                <h2 class="text-3xl font-bold">TAMAT</h2>
+                <p id="death-reason" class="text-slate-400">Jawaban kamu salah. Semua streak hancur!</p>
+                <div class="flex flex-col gap-3">
+                    <button onclick="useLike()" id="use-like-btn" class="w-full bg-indigo-600 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-heart text-red-400"></i> Gunakan 1 Like
+                    </button>
+                    <button onclick="confirmReset()" class="w-full bg-slate-800 py-4 rounded-xl font-bold hover:bg-slate-700 transition-all">
+                        Ulang (Reset 50% Skor)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Bank Soal Lebih Banyak
+        const questionBank = [
+            { q: "Siapa penemu lampu pijar?", a: ["Nikola Tesla", "Thomas Edison", "Albert Einstein", "Graham Bell"], c: 1, s: "Sains" },
+            { q: "Apa nama galaksi tempat kita tinggal?", a: ["Andromeda", "Bimasakti", "Sombrero", "Cartwheel"], c: 1, s: "Astronomi" },
+            { q: "Benua terkecil di dunia adalah...", a: ["Asia", "Eropa", "Australia", "Antartika"], c: 2, s: "Geografi" },
+            { q: "Simbol kimia untuk Air adalah...", a: ["O2", "CO2", "H2O", "N2O"], c: 2, s: "Kimia" },
+            { q: "Berapakah hasil dari 7 x 8 + 4?", a: ["56", "60", "64", "52"], c: 1, s: "Matematika" },
+            { q: "Novel 'Laskar Pelangi' ditulis oleh...", a: ["Tere Liye", "Pramoedya", "Andrea Hirata", "Dewi Lestari"], c: 2, s: "Sastra" },
+            { q: "Hardware yang disebut 'Otak' komputer adalah...", a: ["RAM", "GPU", "CPU", "SSD"], c: 2, s: "TIK" },
+            { q: "VOC dibubarkan pada tahun...", a: ["1799", "1800", "1945", "1602"], c: 0, s: "Sejarah" },
+            { q: "Ibukota dari negara Brazil adalah...", a: ["Rio de Janeiro", "Sao Paulo", "Brasilia", "Salvador"], c: 2, s: "Geografi" },
+            { q: "Pancasila ke-3 berbunyi...", a: ["Keadilan sosial", "Persatuan Indonesia", "Kemanusiaan", "Ketuhanan"], c: 1, s: "PKN" },
+            { q: "Vitamin yang paling banyak di jeruk adalah...", a: ["Vit A", "Vit B", "Vit C", "Vit D"], c: 2, s: "Biologi" },
+            { q: "Siapa pemain sepak bola dengan Ballon d'Or terbanyak?", a: ["Ronaldo", "Pele", "Maradona", "Lionel Messi"], c: 3, s: "Olahraga" }
+        ];
+
+        let currentStreak = 0;
+        let lives = parseInt(localStorage.getItem('gem_likes')) || 5;
+        let globalScore = parseInt(localStorage.getItem('gem_total_score')) || 0;
+        
+        // Simulasi Top Global Data
+        let topPlayers = [
+            { name: "Rafli_SMK", score: 5000, status: "GODLIKE" },
+            { name: "Dinda_SMA", score: 4200, status: "LEGEND" },
+            { name: "Budi_SMP", score: 3100, status: "PRO" },
+            { name: "Adit_TKJ", score: 2800, status: "ELITE" },
+            { name: "Siti_Akuntansi", score: 2500, status: "ELITE" }
+        ];
+
+        window.onload = () => {
+            updateUI();
+            renderTopGlobal();
+        };
+
+        function updateUI() {
+            document.getElementById('score-val').innerText = globalScore;
+            document.getElementById('like-count').innerText = lives;
+            document.getElementById('shop-balance').innerText = globalScore;
+            
+            localStorage.setItem('gem_likes', lives);
+            localStorage.setItem('gem_total_score', globalScore);
+        }
+
+        function renderTopGlobal() {
+            const list = document.getElementById('top-global-list');
+            const currentUser = { name: "Kamu (User)", score: globalScore, status: "Active" };
+            
+            const sorted = [...topPlayers, currentUser]
+                .sort((a, b) => b.score - a.score);
+
+            list.innerHTML = sorted.map((p, i) => `
+                <div class="flex items-center justify-between p-4 rounded-2xl ${p.name.includes('Kamu') ? 'bg-indigo-600 border border-indigo-400 shadow-lg shadow-indigo-500/20' : 'bg-slate-800/50 border border-slate-700'}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-900 text-[10px] font-bold">
+                            ${i + 1}
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm ${p.name.includes('Kamu') ? 'text-white' : 'text-slate-200'}">${p.name}</p>
+                            <p class="text-[9px] text-indigo-300 font-bold uppercase tracking-widest">${p.status}</p>
+                        </div>
+                    </div>
+                    <span class="font-black text-sm ${p.name.includes('Kamu') ? 'text-white' : 'text-indigo-400'}">${p.score.toLocaleString()}</span>
+                </div>
+            `).join('');
+        }
+
+        function openShop() {
+            document.getElementById('shop-modal').classList.remove('hidden');
+            document.getElementById('shop-modal').classList.add('flex');
+            updateUI();
+        }
+
+        function closeShop() {
+            document.getElementById('shop-modal').classList.add('hidden');
+            document.getElementById('shop-modal').classList.remove('flex');
+        }
+
+        function processPurchase(amount, cost) {
+            if (globalScore >= cost) {
+                globalScore -= cost;
+                lives += amount;
+                updateUI();
+                renderTopGlobal();
+                alert(`Pembelian Berhasil! +${amount} Nyawa telah ditambahkan.`);
+            } else {
+                alert("Poin kamu tidak cukup! Teruslah bermain untuk mengumpulkan poin.");
+            }
+        }
+
+        function startInfiniteQuiz() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            const randomIdx = Math.floor(Math.random() * questionBank.length);
+            const q = questionBank[randomIdx];
+            
+            document.getElementById('streak-counter').innerText = `STREAK: ${currentStreak}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            q.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-5 text-left rounded-2xl bg-slate-800 border-2 border-slate-700 hover:border-indigo-500 hover:bg-slate-700 transition-all font-bold flex justify-between items-center group";
+                btn.innerHTML = `
+                    <span>${opt}</span>
+                    <i class="fas fa-chevron-right opacity-0 group-hover:opacity-100 transition-all"></i>
+                `;
+                btn.onclick = () => checkAnswer(idx, q.c);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(chosen, correct) {
+            if (chosen === correct) {
+                currentStreak++;
+                globalScore += (20 + (currentStreak * 5)); // Reward lebih besar jika streak tinggi
+                updateUI();
+                renderTopGlobal();
+                nextQuestion();
+            } else {
+                showDeathModal();
+            }
+        }
+
+        function showDeathModal() {
+            document.getElementById('death-modal').classList.remove('hidden');
+            document.getElementById('death-modal').classList.add('flex');
+            
+            const useLikeBtn = document.getElementById('use-like-btn');
+            if (lives <= 0) {
+                useLikeBtn.disabled = true;
+                useLikeBtn.className = "w-full bg-slate-700 text-slate-500 py-4 rounded-xl font-bold cursor-not-allowed";
+                useLikeBtn.innerText = "Tidak ada Like tersisa";
+            } else {
+                useLikeBtn.disabled = false;
+                useLikeBtn.className = "w-full bg-indigo-600 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2";
+                useLikeBtn.innerText = "Gunakan 1 Like";
+            }
+        }
+
+        function useLike() {
+            if (lives > 0) {
+                lives--;
+                updateUI();
+                document.getElementById('death-modal').classList.add('hidden');
+                document.getElementById('death-modal').classList.remove('flex');
+                nextQuestion(); 
+            }
+        }
+
+        function confirmReset() {
+            currentStreak = 0;
+            globalScore = Math.floor(globalScore * 0.5); // Hukuman: Potong 50% Skor
+            updateUI();
+            renderTopGlobal();
+            document.getElementById('death-modal').classList.add('hidden');
+            document.getElementById('death-modal').classList.remove('flex');
+            goHome();
+        }
+
+        function goHome() {
+            document.getElementById('welcome-screen').classList.remove('hidden');
+            document.getElementById('quiz-screen').classList.add('hidden');
+            currentStreak = 0;
+            updateUI();
+        }
+    </script>
+</body>
+</html>
